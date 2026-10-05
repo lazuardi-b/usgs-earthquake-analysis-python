@@ -1,0 +1,45 @@
+# Ignore temporary sandbox or practice files
+try.py
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.bin
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments (Crucial for your .venv!)
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# VS Code specific files
+.vscode/
+*.code-workspace
+
+# Operating System junk
+.DS_Store
+Thumbs.db
