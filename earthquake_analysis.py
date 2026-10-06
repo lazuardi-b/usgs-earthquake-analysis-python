@@ -3,6 +3,7 @@ import requests
 from datetime import date
 import json
 import pandas as pd
+import plotly.express as px
 
 # EXTRACT & LOAD DATA
 
@@ -83,7 +84,79 @@ print(df_clean.info())
 # VISUALIZATION
 
 # 1. World Map
-# 2. Indo Map
+# dataframe = df_clean
+df_clean['date_clean'] = df_clean['time'].dt.strftime('%Y-%m-%d')
+
+title = "Global Distribution of Earthquakes (>= 5.0 Magnitude, 2026 YTD)"
+
+fig = px.scatter_geo(
+    data_frame=df_clean,
+    lat='latitude',
+    lon='longitude',
+    title=title,
+    size='magnitude',
+    color='magnitude',
+    color_continuous_scale='viridis',
+    projection='natural earth',
+    hover_name='place',
+    hover_data={
+        'magnitude': ': .1f',
+        'date_clean': True,
+        'latitude':': .2f',
+        'longitude':': .2f'
+    },
+    labels={
+        'date_clean': 'Date',
+        'magnitude': 'Magnitude',
+        'latitude': 'Latitude',
+        'longitude': 'Longitude'
+    },
+    size_max=8
+)
+
+fig.show()
+
+# 2. Indonesia Map
+df_clean['date_clean'] = df_clean['time'].dt.strftime('%Y-%m-%d')
+
+country_name = 'Indonesia'
+df_indonesia = df_clean[df_clean['place'].str.contains(country_name, case=False, na=False)]
+
+title = "Indonesia Distribution of Earthquakes (>= 5.0 Magnitude, 2026 YTD)"
+
+fig = px.scatter_geo(
+    data_frame=df_indonesia,
+    lat='latitude',
+    lon='longitude',
+    title=title,
+    size='magnitude',
+    color='magnitude',
+    color_continuous_scale='viridis',
+    projection='natural earth',
+    hover_name='place',
+    hover_data={
+        'magnitude': ': .1f',
+        'date_clean': True,
+        'latitude':': .2f',
+        'longitude':': .2f'
+    },
+    labels={
+        'date_clean': 'Date',
+        'magnitude': 'Magnitude',
+        'latitude': 'Latitude',
+        'longitude': 'Longitude'
+    },
+    size_max=8
+)
+
+fig.show()
+
 # 3. Eq over time ytd
 # 4. Eq monthly trend
 # 5. Top 10 Biggest Eq 2026 ytd
+
+# 1. Global Distribution of Earthquakes ($\ge 5.0$ Magnitude, 2026 YTD)
+# 2. Regional Seismic Activity: Indonesia Focus ($\ge 5.0$ Magnitude, 2026 YTD)
+# 3. Chronological Distribution of Seismic Events Over Time (2026 YTD)
+# 4. Monthly Frequency & Trend of Moderate-to-Strong Earthquakes (2026)
+# 5. Top 10 Highest Magnitude Earthquakes (2026 YTD)
