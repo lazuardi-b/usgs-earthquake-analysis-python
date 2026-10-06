@@ -234,8 +234,8 @@ fig.update_xaxes(
 )
 fig.update_layout(xaxis_title=None, yaxis_title='Frequency')
 fig.update_traces(
-    line=dict(color='#1361e1', width=3),  # Change hex code for color and width for thickness
-    marker=dict(size=8),                 # Optional: you can also resize the data point markers
+    line=dict(color='#1361e1', width=3),  
+    marker=dict(size=8),                 
 )
 
 fig.write_html("charts/04_eq_ina_monthlytrends.html")
