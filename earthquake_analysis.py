@@ -283,4 +283,3 @@ fig.update_yaxes(autorange='reversed')
 fig.write_html("charts/05_eq_ina_top10.html")
 fig.write_image("charts/05_eq_ina_top10.png", width=1200, height=700, scale=2)
 fig.show()
-
