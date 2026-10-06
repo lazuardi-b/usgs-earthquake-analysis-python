@@ -118,7 +118,7 @@ fig = px.scatter_geo(
 fig.update_traces(marker_line_width=0)
 
 fig.write_html("charts/01_eq_global_distribution.html")
-fig.write_image("charts/01_eq_global_distribution.png", width=1200, height=700, scale=1)
+fig.write_image("charts/01_eq_global_distribution.png", width=1200, height=700, scale=2)
 fig.show()
 
 # 2. Indonesia Map
@@ -156,7 +156,7 @@ fig = px.scatter_geo(
 fig.update_traces(marker_line_width=0)
 
 fig.write_html("charts/02_eq_Indonesia.html")
-fig.write_image("charts/02_eq_Indonesia.png", width=1200, height=700, scale=1)
+fig.write_image("charts/02_eq_Indonesia.png", width=1200, height=700, scale=2)
 fig.show()
 
 # 3. Indonesia's Earthquake Over Time
@@ -202,7 +202,7 @@ fig.update_layout(xaxis_title=None, yaxis_title=None)
 fig.update_traces(marker_line_width=0)
 
 fig.write_html("charts/03_eq_ina_overtime.html")
-fig.write_image("charts/03_eq_ina_overtime.png", width=1200, height=700, scale=1)
+fig.write_image("charts/03_eq_ina_overtime.png", width=1200, height=700, scale=2)
 fig.show()
 
 # 4. Monthly Trends
@@ -239,7 +239,7 @@ fig.update_traces(
 )
 
 fig.write_html("charts/04_eq_ina_monthlytrends.html")
-fig.write_image("charts/04_eq_ina_monthlytrends.png", width=1200, height=700, scale=1)
+fig.write_image("charts/04_eq_ina_monthlytrends.png", width=1200, height=700, scale=2)
 fig.show()
 
 # 5. Top 10 Biggest Eq 2026 ytd
@@ -281,6 +281,6 @@ fig.update_layout(xaxis_title='Magnitude', yaxis_title=None, coloraxis_showscale
 fig.update_yaxes(autorange='reversed')
 
 fig.write_html("charts/05_eq_ina_top10.html")
-fig.write_image("charts/05_eq_ina_top10.png", width=1200, height=700, scale=1)
+fig.write_image("charts/05_eq_ina_top10.png", width=1200, height=700, scale=2)
 fig.show()
 
