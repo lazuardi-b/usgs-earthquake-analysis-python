@@ -111,15 +111,18 @@ fig = px.scatter_geo(
         'latitude': 'Latitude',
         'longitude': 'Longitude'
     },
-    size_max=8
+    size_max=6,
+    opacity=0.5,
 )
 
 fig.update_traces(marker_line_width=0)
+
+fig.write_html("charts/01_eq_global_distribution.html")
+fig.write_image("charts/01_eq_global_distribution.png", width=1200, height=700, scale=1)
 fig.show()
 
 # 2. Indonesia Map
-df_clean['date_clean'] = df_clean['time'].dt.strftime('%Y-%m-%d')
-
+# df_clean['date_clean'] = df_clean['time'].dt.strftime('%Y-%m-%d')
 country_name = 'Indonesia'
 df_indonesia = df_clean[df_clean['place'].str.contains(country_name, case=False, na=False)]
 
@@ -147,17 +150,19 @@ fig = px.scatter_geo(
         'latitude': 'Latitude',
         'longitude': 'Longitude'
     },
-    size_max=8
+    size_max=8,
 )
 
 fig.update_traces(marker_line_width=0)
+
+fig.write_html("charts/02_eq_Indonesia.html")
+fig.write_image("charts/02_eq_Indonesia.png", width=1200, height=700, scale=1)
 fig.show()
 
 # 3. Indonesia's Earthquake Over Time
-df_clean['date_clean'] = df_clean['time'].dt.strftime('%Y-%m-%d')
-
-country_name = 'Indonesia'
-df_indonesia = df_clean[df_clean['place'].str.contains(country_name, case=False, na=False)]
+# df_clean['date_clean'] = df_clean['time'].dt.strftime('%Y-%m-%d')
+# country_name = 'Indonesia'
+# df_indonesia = df_clean[df_clean['place'].str.contains(country_name, case=False, na=False)]
 
 df_indonesia['place_clean'] = df_indonesia['place'].str.replace(', Indonesia', '', regex=False)
 df_timeline = df_indonesia.sort_values('date_clean', ascending=True)
@@ -194,17 +199,18 @@ fig.update_xaxes(
     ticklabelmode="instant"
 )
 fig.update_layout(xaxis_title=None, yaxis_title=None)
-
 fig.update_traces(marker_line_width=0)
+
+fig.write_html("charts/03_eq_ina_overtime.html")
+fig.write_image("charts/03_eq_ina_overtime.png", width=1200, height=700, scale=1)
 fig.show()
 
 # 4. Monthly Trends
-df_clean['date_clean'] = df_clean['time'].dt.strftime('%Y-%m-%d')
-
-country_name = 'Indonesia'
-df_indonesia = df_clean[df_clean['place'].str.contains(country_name, case=False, na=False)]
-df_indonesia['place_clean'] = df_indonesia['place'].str.replace(', Indonesia', '', regex=False)
-df_timeline = df_indonesia.sort_values('date_clean', ascending=True)
+# df_clean['date_clean'] = df_clean['time'].dt.strftime('%Y-%m-%d')
+# country_name = 'Indonesia'
+# df_indonesia = df_clean[df_clean['place'].str.contains(country_name, case=False, na=False)]
+# df_indonesia['place_clean'] = df_indonesia['place'].str.replace(', Indonesia', '', regex=False)
+# df_timeline = df_indonesia.sort_values('date_clean', ascending=True)
 
 df_timeline['month'] = pd.to_datetime(df_timeline['date_clean']).dt.to_period('M').astype(str)
 monthly_trend = df_timeline.groupby(by='month').size().reset_index(name='count')
@@ -217,6 +223,8 @@ fig = px.line(
     y='count',
     title=title,
     markers=True,
+    hover_data={'count': True, 'month': True},
+    labels={'count': 'Frequency'},
 )
 
 fig.update_xaxes(
@@ -225,18 +233,23 @@ fig.update_xaxes(
     ticklabelmode="instant"
 )
 fig.update_layout(xaxis_title=None, yaxis_title='Frequency')
+fig.update_traces(
+    line=dict(color='#1361e1', width=3),  # Change hex code for color and width for thickness
+    marker=dict(size=8),                 # Optional: you can also resize the data point markers
+)
 
+fig.write_html("charts/04_eq_ina_monthlytrends.html")
+fig.write_image("charts/04_eq_ina_monthlytrends.png", width=1200, height=700, scale=1)
 fig.show()
 
 # 5. Top 10 Biggest Eq 2026 ytd
-df_clean['date_clean'] = df_clean['time'].dt.strftime('%Y-%m-%d')
-
-country_name = 'Indonesia'
-df_indonesia = df_clean[df_clean['place'].str.contains(country_name, case=False, na=False)]
-df_indonesia['place_clean'] = df_indonesia['place'].str.replace(', Indonesia', '', regex=False)
+# df_clean['date_clean'] = df_clean['time'].dt.strftime('%Y-%m-%d')
+# country_name = 'Indonesia'
+# df_indonesia = df_clean[df_clean['place'].str.contains(country_name, case=False, na=False)]
+# df_indonesia['place_clean'] = df_indonesia['place'].str.replace(', Indonesia', '', regex=False)
 
 df_top10 = df_indonesia.sort_values(by='magnitude', ascending=False).head(10)
-df_top10.head()
+
 title = "Indonesia's Top 10 Highest Magnitude Earthquake (>= 5.0 Magnitude, 2026 YTD)"
 
 fig = px.bar(
@@ -266,5 +279,8 @@ fig = px.bar(
 
 fig.update_layout(xaxis_title='Magnitude', yaxis_title=None, coloraxis_showscale=False)
 fig.update_yaxes(autorange='reversed')
+
+fig.write_html("charts/05_eq_ina_top10.html")
+fig.write_image("charts/05_eq_ina_top10.png", width=1200, height=700, scale=1)
 fig.show()
 
