@@ -114,6 +114,7 @@ fig = px.scatter_geo(
     size_max=8
 )
 
+fig.update_traces(marker_line_width=0)
 fig.show()
 
 # 2. Indonesia Map
@@ -149,14 +150,121 @@ fig = px.scatter_geo(
     size_max=8
 )
 
+fig.update_traces(marker_line_width=0)
 fig.show()
 
-# 3. Eq over time ytd
-# 4. Eq monthly trend
-# 5. Top 10 Biggest Eq 2026 ytd
+# 3. Indonesia's Earthquake Over Time
+df_clean['date_clean'] = df_clean['time'].dt.strftime('%Y-%m-%d')
 
-# 1. Global Distribution of Earthquakes ($\ge 5.0$ Magnitude, 2026 YTD)
-# 2. Regional Seismic Activity: Indonesia Focus ($\ge 5.0$ Magnitude, 2026 YTD)
-# 3. Chronological Distribution of Seismic Events Over Time (2026 YTD)
-# 4. Monthly Frequency & Trend of Moderate-to-Strong Earthquakes (2026)
-# 5. Top 10 Highest Magnitude Earthquakes (2026 YTD)
+country_name = 'Indonesia'
+df_indonesia = df_clean[df_clean['place'].str.contains(country_name, case=False, na=False)]
+
+df_indonesia['place_clean'] = df_indonesia['place'].str.replace(', Indonesia', '', regex=False)
+df_timeline = df_indonesia.sort_values('date_clean', ascending=True)
+
+title = "Indonesia's Earthquakes Over Time (>= 5.0 Magnitude, 2026 YTD)"
+
+fig = px.scatter(
+    data_frame=df_timeline,
+    x='date_clean',
+    y='magnitude',
+    title=title,
+    size='magnitude',           
+    color='magnitude',
+    color_continuous_scale=['#d0dff9', '#1361e1', '#da2129'],
+    hover_name='place',
+    size_max=12,
+    hover_data={
+        'magnitude': ': .1f',
+        'date_clean': '|%Y-%m-%d',
+        'latitude':': .2f',
+        'longitude':': .2f'
+    },
+    labels={
+        'date_clean': 'Date',
+        'magnitude': 'Magnitude',
+        'latitude': 'Latitude',
+        'longitude': 'Longitude'
+    },
+)
+
+fig.update_xaxes(
+    dtick="M1",         
+    tickformat="%b",    
+    ticklabelmode="instant"
+)
+fig.update_layout(xaxis_title=None, yaxis_title=None)
+
+fig.update_traces(marker_line_width=0)
+fig.show()
+
+# 4. Monthly Trends
+df_clean['date_clean'] = df_clean['time'].dt.strftime('%Y-%m-%d')
+
+country_name = 'Indonesia'
+df_indonesia = df_clean[df_clean['place'].str.contains(country_name, case=False, na=False)]
+df_indonesia['place_clean'] = df_indonesia['place'].str.replace(', Indonesia', '', regex=False)
+df_timeline = df_indonesia.sort_values('date_clean', ascending=True)
+
+df_timeline['month'] = pd.to_datetime(df_timeline['date_clean']).dt.to_period('M').astype(str)
+monthly_trend = df_timeline.groupby(by='month').size().reset_index(name='count')
+
+title = "Monthly Trend of Indonesia Earthquake (>= 5.0 Magnitude, 2026 YTD)"
+
+fig = px.line(
+    data_frame=monthly_trend,
+    x='month',
+    y='count',
+    title=title,
+    markers=True,
+)
+
+fig.update_xaxes(
+    dtick="M1",         
+    tickformat="%b",    
+    ticklabelmode="instant"
+)
+fig.update_layout(xaxis_title=None, yaxis_title='Frequency')
+
+fig.show()
+
+# 5. Top 10 Biggest Eq 2026 ytd
+df_clean['date_clean'] = df_clean['time'].dt.strftime('%Y-%m-%d')
+
+country_name = 'Indonesia'
+df_indonesia = df_clean[df_clean['place'].str.contains(country_name, case=False, na=False)]
+df_indonesia['place_clean'] = df_indonesia['place'].str.replace(', Indonesia', '', regex=False)
+
+df_top10 = df_indonesia.sort_values(by='magnitude', ascending=False).head(10)
+df_top10.head()
+title = "Indonesia's Top 10 Highest Magnitude Earthquake (>= 5.0 Magnitude, 2026 YTD)"
+
+fig = px.bar(
+    data_frame=df_top10,
+    x='magnitude',
+    y='place_clean',
+    title=title,
+    orientation='h',
+    text='magnitude',
+    color='magnitude',
+    color_continuous_scale=['#d0dff9', '#1361e1'],
+    hover_name='place',
+    hover_data={
+        'magnitude': ': .1f',
+        'date_clean': '|%Y-%m-%d',
+        'latitude':': .2f',
+        'longitude':': .2f',
+        'place_clean': False
+    },
+    labels={
+        'date_clean': 'Date',
+        'magnitude': 'Magnitude',
+        'latitude': 'Latitude',
+        'longitude': 'Longitude'
+    },
+)
+
+fig.update_layout(xaxis_title='Magnitude', yaxis_title=None, coloraxis_showscale=False)
+fig.update_yaxes(autorange='reversed')
+fig.show()
+
