@@ -164,173 +164,250 @@ The Jupyter Notebook version of the project, including the **code, outputs, and 
 
 ## Visualizations
 
-The cleaned climate data was visualized with **Matplotlib** to show daily temperature, rainfall, snowfall, and snow depth throughout 2026 YTD.
+The cleaned earthquake data `df_clean` was visualized with **Plotly Express** to map global seismic activity, filter down to regional trends in Indonesia, and track earthquake frequency and top magnitudes throughout 2026 YTD.
 
-### Daily High and Low Temperature
+### Global Earthquake Distribution Map
 
-This chart shows the daily **maximum and minimum temperatures** recorded at JFK Airport.
+This interactive scatter map plots all earthquakes ($\ge$ 5.0 magnitude) recorded worldwide using geographic coordinates to show global seismic patterns.
 
-![Daily High and Low Temperature](charts/tmax_tmin.png)
+> ***Click the image below** to open the interactive HTML chart* 
 
-```python
-# Daily High vs Low Temperature
-plt.style.use('seaborn-v0_8')
-
-fig, ax = plt.subplots()
-ax.plot(df_clean['date'], df_clean['TMAX'], color='red', linewidth=1)
-ax.plot(df_clean['date'], df_clean['TMIN'], color='blue', linewidth=1)
-
-ax.fill_between(df_clean['date'], df_clean['TMAX'], df_clean['TMIN'], facecolor='blue', alpha=0.1)
-
-ax.set_title("Daily High and Low Temperature, 2026-YTD\nNew York, NY (JFK Airport Station)", fontsize=18)
-ax.set_ylabel("Temperature (\u00b0C)", fontsize=12)
-ax.tick_params(labelsize=12)
-ax.xaxis.set_major_locator(mdates.MonthLocator())
-ax.xaxis.set_major_formatter(mdates.DateFormatter('%b'))
-ax.legend(['Daily High', 'Daily Low'], fontsize=8, loc='upper right')
-
-ax.set_xlim(
-     df_clean['date'].min() - pd.Timedelta(days=3), 
-     df_clean['date'].max()
-)
-
-max_temp = df_clean['TMAX'].max()
-min_temp = df_clean['TMIN'].min()
-max_date = df_clean.loc[df_clean['TMAX'].idxmax(), "date"]
-min_date = df_clean.loc[df_clean['TMIN'].idxmin(), "date"]
-
-ax.scatter(x=max_date, y=max_temp, c='black', edgecolors='none', s=36, zorder=3)
-ax.scatter(x=min_date, y=min_temp, c='black', edgecolors='none', s=36, zorder=3)
-
-ax.annotate(
-    f"{max_temp:.1f}\u00b0C",
-    xy=(max_date, max_temp),
-    xytext=(5, -2),
-    textcoords="offset points",
-    fontsize=8
-)
-ax.annotate(
-    f"{min_temp:.1f}\u00b0C",
-    xy=(min_date, min_temp),
-    xytext=(5, -2),
-    textcoords="offset points",
-    fontsize=8
-)
-
-plt.show()
-```
-
-### Daily Rainfall
-
-This chart shows the daily **precipitation** recorded at JFK Airport.
-
-![Daily Rainfall](charts/prcp.png)
+[![Global Distribution of Earthquakes](charts/01_eq_global_distribution.png)](https://htmlpreview.github.io/?https://github.com/lazuardi-b/usgs-earthquake-analysis-python/blob/main/charts/01_eq_global_distribution.html)
 
 ```python
-# Daily Rainfall
-plt.style.use('seaborn-v0_8')
+df_clean['date_clean'] = df_clean['time'].dt.strftime('%Y-%m-%d')
 
-fig, ax = plt.subplots()
-ax.plot(df_clean['date'], df_clean['PRCP'], color='blue', linewidth=1)
+title = "Global Distribution of Earthquakes (>= 5.0 Magnitude, 2026 YTD)"
 
-ax.set_title("Daily Rainfall, 2026-YTD\nNew York, NY (JFK Airport Station)", fontsize=18)
-ax.set_ylabel("Precipitation (mm)", fontsize=12)
-ax.tick_params(labelsize=12)
-ax.xaxis.set_major_locator(mdates.MonthLocator())
-ax.xaxis.set_major_formatter(mdates.DateFormatter('%b'))
-
-ax.set_xlim(
-     df_clean['date'].min() - pd.Timedelta(days=3), 
-     df_clean['date'].max()
+fig = px.scatter_geo(
+    data_frame=df_clean,
+    lat='latitude',
+    lon='longitude',
+    title=title,
+    size='magnitude',
+    color='magnitude',
+    color_continuous_scale='viridis',
+    projection='natural earth',
+    hover_name='place',
+    hover_data={
+        'magnitude': ': .1f',
+        'date_clean': True,
+        'latitude':': .2f',
+        'longitude':': .2f'
+    },
+    labels={
+        'date_clean': 'Date',
+        'magnitude': 'Magnitude',
+        'latitude': 'Latitude',
+        'longitude': 'Longitude'
+    },
+    size_max=6,
+    opacity=0.5,
 )
 
-max_rain = df_clean['PRCP'].max()
-max_date = df_clean.loc[df_clean['PRCP'].idxmax(), "date"]
-ax.scatter(x=max_date, y=max_rain, c='red', edgecolors='none', s=36, zorder=3)
-
-ax.annotate(
-    f"{max_rain:.1f}mm",
-    xy=(max_date, max_rain),
-    xytext=(5, -2),
-    textcoords="offset points",
-    fontsize=8
-)
-
-plt.show()
+fig.update_traces(marker_line_width=0)
+fig.show()
 ```
 
-### Daily Snowfall & Snow Depth
+### Indonesia Earthquake Distribution Map
 
-This visualization compares **daily snowfall** and **snow depth** using two side-by-side plots.
+Filters the global dataset for Indonesia, plotting regional earthquake locations and magnitudes across the country.
 
-![Daily Snowfall & Snow Depth](charts/snow_snwd.png)
+> ***Click the image below** to open the interactive HTML chart*
+
+[![Indonesia Distribution of Earthquakes](charts/02_eq_Indonesia.png)](https://htmlpreview.github.io/?https://github.com/lazuardi-b/usgs-earthquake-analysis-python/blob/main/charts/02_eq_Indonesia.html)
 
 ```python
-# Daily Snowfall & Snow Depth
-plt.style.use('seaborn-v0_8')
+# df_clean['date_clean'] = df_clean['time'].dt.strftime('%Y-%m-%d')
+country_name = 'Indonesia'
+df_indonesia = df_clean[df_clean['place'].str.contains(country_name, case=False, na=False)]
 
-fig, ax = plt.subplots(1, 2, sharey=True)
-ax[0].plot(df_clean['date'], df_clean['SNOW'], color='deepskyblue', linewidth=1)
-ax[1].plot(df_clean['date'], df_clean['SNWD'], color='blue', linewidth=1)
+title = "Indonesia Distribution of Earthquakes (>= 5.0 Magnitude, 2026 YTD)"
 
-ax[0].set_title("Daily Snowfall")
-ax[0].set_ylabel("depth (mm)")
-
-max_snow = df_clean['SNOW'].max()
-max_date_snow = df_clean.loc[df_clean['SNOW'].idxmax(), "date"]
-ax[0].scatter(x=max_date_snow, y=max_snow, c='red', edgecolors='none', s=36, zorder=3)
-ax[0].annotate(
-     f"{max_snow:.1f} mm", 
-     xy=(max_date_snow, max_snow), 
-     xytext=(5, 0), 
-     textcoords="offset points", 
-     fontsize=8
+fig = px.scatter_geo(
+    data_frame=df_indonesia,
+    lat='latitude',
+    lon='longitude',
+    title=title,
+    size='magnitude',
+    color='magnitude',
+    color_continuous_scale='viridis',
+    projection='natural earth',
+    hover_name='place',
+    hover_data={
+        'magnitude': ': .1f',
+        'date_clean': True,
+        'latitude':': .2f',
+        'longitude':': .2f'
+    },
+    labels={
+        'date_clean': 'Date',
+        'magnitude': 'Magnitude',
+        'latitude': 'Latitude',
+        'longitude': 'Longitude'
+    },
+    size_max=8,
 )
 
-ax[1].set_title("Daily Snow Depth")
-
-max_snwd = df_clean['SNWD'].max()
-max_date_snwd = df_clean.loc[df_clean['SNWD'].idxmax(), "date"]
-ax[1].scatter(x=max_date_snwd, y=max_snwd, c='red', edgecolors='none', s=36, zorder=3)
-ax[1].annotate(
-     f"{max_snwd:.1f} mm", 
-     xy=(max_date_snwd, max_snwd), 
-     xytext=(5, 0), 
-     textcoords="offset points", 
-     fontsize=8
-)
-
-for a in ax:
-    a.xaxis.set_major_locator(mdates.MonthLocator())
-    a.xaxis.set_major_formatter(mdates.DateFormatter('%b'))
-    a.set_xlim(df_clean['date'].min() - pd.Timedelta(days=3), df_clean['date'].max())
-    a.tick_params(axis='x', rotation=30, labelsize=8)
-    a.tick_params(axis='y', labelsize=8)
-
-fig.suptitle("Daily Snowfall vs Snow Depth, 2026-YTD\nNew York, NY (JFK Airport Station)", fontsize=18)
-fig.tight_layout()
-
-plt.show()
+fig.update_traces(marker_line_width=0)
+fig.show()
 ```
 
+### Indonesia Earthquakes Over Time
+
+Plots every seismic event in Indonesia chronologically to trace magnitude fluctuations and patterns throughout 2026 YTD.
+
+> ***Click the image below** to open the interactive HTML chart*
+
+[![Indonesia's Earthquakes Over Time](charts/03_eq_ina_overtime.png)](https://htmlpreview.github.io/?https://github.com/lazuardi-b/usgs-earthquake-analysis-python/blob/main/charts/03_eq_ina_overtime.html)
+
+```python
+# df_clean['date_clean'] = df_clean['time'].dt.strftime('%Y-%m-%d')
+# country_name = 'Indonesia'
+# df_indonesia = df_clean[df_clean['place'].str.contains(country_name, case=False, na=False)]
+df_indonesia['place_clean'] = df_indonesia['place'].str.replace(', Indonesia', '', regex=False)
+df_timeline = df_indonesia.sort_values('date_clean', ascending=True)
+
+title = "Indonesia's Earthquakes Over Time (>= 5.0 Magnitude, 2026 YTD)"
+
+fig = px.scatter(
+    data_frame=df_timeline,
+    x='date_clean',
+    y='magnitude',
+    title=title,
+    size='magnitude',           
+    color='magnitude',
+    color_continuous_scale=['#d0dff9', '#1361e1', '#da2129'],
+    hover_name='place',
+    size_max=12,
+    hover_data={
+        'magnitude': ': .1f',
+        'date_clean': '|%Y-%m-%d',
+        'latitude':': .2f',
+        'longitude':': .2f'
+    },
+    labels={
+        'date_clean': 'Date',
+        'magnitude': 'Magnitude',
+        'latitude': 'Latitude',
+        'longitude': 'Longitude'
+    },
+)
+
+fig.update_xaxes(
+    dtick="M1",         
+    tickformat="%b",    
+    ticklabelmode="instant"
+)
+fig.update_layout(xaxis_title=None, yaxis_title=None)
+fig.update_traces(marker_line_width=0)
+fig.show()
+```
+
+### Monthly Earthquake Trends in Indonesia
+
+Aggregates earthquake counts by month to illustrate the frequency of seismic events in Indonesia throughout 2026 YTD.
+
+> ***Click the image below** to open the interactive HTML chart*
+
+[![Monthly Trend of Indonesia Earthquake](charts/04_eq_ina_monthlytrends.png)](https://htmlpreview.github.io/?https://github.com/lazuardi-b/usgs-earthquake-analysis-python/blob/main/charts/04_eq_ina_monthlytrends.html)
+
+```python
+# 4. Monthly Trends
+# df_clean['date_clean'] = df_clean['time'].dt.strftime('%Y-%m-%d')
+# country_name = 'Indonesia'
+# df_indonesia = df_clean[df_clean['place'].str.contains(country_name, case=False, na=False)]
+# df_indonesia['place_clean'] = df_indonesia['place'].str.replace(', Indonesia', '', regex=False)
+# df_timeline = df_indonesia.sort_values('date_clean', ascending=True)
+df_timeline['month'] = pd.to_datetime(df_timeline['date_clean']).dt.to_period('M').astype(str)
+monthly_trend = df_timeline.groupby(by='month').size().reset_index(name='count')
+
+title = "Monthly Trend of Indonesia Earthquake (>= 5.0 Magnitude, 2026 YTD)"
+
+fig = px.line(
+    data_frame=monthly_trend,
+    x='month',
+    y='count',
+    title=title,
+    markers=True,
+    hover_data={'count': True, 'month': True},
+    labels={'count': 'Frequency'},
+)
+
+fig.update_xaxes(
+    dtick="M1",         
+    tickformat="%b",    
+    ticklabelmode="instant"
+)
+fig.update_layout(xaxis_title=None, yaxis_title='Frequency')
+fig.update_traces(
+    line=dict(color='#1361e1', width=3),  
+    marker=dict(size=8),                 
+)
+fig.show()
+```
+
+### Top 10 Strongest Earthquakes in Indonesia
+
+Ranks the 10 highest magnitude earthquakes recorded in Indonesia throughout 2026 YTD, highlighting the specific locations of the most severe seismic events.
+
+> ***Click the image below** to open the interactive HTML chart*
+
+[![Indonesia's Top 10 Highest Magnitude Earthquake](charts/05_eq_ina_top10.png)](https://htmlpreview.github.io/?https://github.com/lazuardi-b/usgs-earthquake-analysis-python/blob/main/charts/05_eq_ina_top10.html)
+
+```python
+# df_clean['date_clean'] = df_clean['time'].dt.strftime('%Y-%m-%d')
+# country_name = 'Indonesia'
+# df_indonesia = df_clean[df_clean['place'].str.contains(country_name, case=False, na=False)]
+# df_indonesia['place_clean'] = df_indonesia['place'].str.replace(', Indonesia', '', regex=False)
+df_top10 = df_indonesia.sort_values(by='magnitude', ascending=False).head(10)
+
+title = "Indonesia's Top 10 Highest Magnitude Earthquake (>= 5.0 Magnitude, 2026 YTD)"
+
+fig = px.bar(
+    data_frame=df_top10,
+    x='magnitude',
+    y='place_clean',
+    title=title,
+    orientation='h',
+    text='magnitude',
+    color='magnitude',
+    color_continuous_scale=['#d0dff9', '#1361e1'],
+    hover_name='place',
+    hover_data={
+        'magnitude': ': .1f',
+        'date_clean': '|%Y-%m-%d',
+        'latitude':': .2f',
+        'longitude':': .2f',
+        'place_clean': False
+    },
+    labels={
+        'date_clean': 'Date',
+        'magnitude': 'Magnitude',
+        'latitude': 'Latitude',
+        'longitude': 'Longitude'
+    },
+)
+
+fig.update_layout(xaxis_title='Magnitude', yaxis_title=None, coloraxis_showscale=False)
+fig.update_yaxes(autorange='reversed')
+fig.show()
+```
 ## Tools
 
 * **Python** for API requests, data processing, and visualization
-* **Requests** for accessing the NOAA Climate Data Online API
+* **Requests** for accessing the USGS Earthquake API
 * **Pandas** for data transformation and cleaning
-* **Matplotlib** for data visualization
+* **Plotly Express** for interactive spatial, timeline, line, and bar visualizations
 * **VS Code** for development and project work
 * **GitHub** for version control and portfolio hosting
 
-## Limitations and Future Improvements
+## Limitations
 
-This project was primarily built to practice working with an external API and handling the resulting data with Python, so the current implementation keeps the workflow relatively straightforward.
+* **Single Source Dependency:** The project relies strictly on the USGS API feed. If the service is temporarily unavailable, new data cannot be fetched.
+* **Scope Boundary:** The dataset is filtered to earthquakes with a magnitude of 5.0 or greater, omitting micro-seismic activity ($\le$ 5.0) that might show broader regional tectonic movements.
 
-There are a few areas that could be improved in the future:
+## Future Improvements
 
-* **Function-based structure:** The current script contains most of the workflow in a single file and could be broken into reusable functions for API requests, data transformation, and visualization.
-* **Dynamic pagination:** The current implementation manually retrieves a second batch of records. This could be replaced with a loop that continues requesting data until all available records have been retrieved.
-* **Reusable visualizations:** The plotting code could be organized into functions so similar charts can be generated with different variables or datasets.
-* **API configuration:** Parameters such as the station, date range, and variables could be separated from the main logic to make the script easier to reuse for other locations or time periods.
-
-These improvements would make the project **more reusable, maintainable, and flexible** while keeping the same core workflow.
+* **Automated Cloud Execution:** Deploy the Python script to run automatically on a cloud schedule (e.g., GitHub Actions) so the hosted interactive HTML maps continuously update without needing local execution.
+* **Dynamic Regional Inputs:** Wrap the cleaning and plotting code into a reusable function so the entire analysis pipeline can be executed for any target country with a single function call.
