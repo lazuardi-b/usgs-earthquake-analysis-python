@@ -1,5 +1,6 @@
 # Ignore temporary sandbox or practice files
 try.py
+messy_process/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
