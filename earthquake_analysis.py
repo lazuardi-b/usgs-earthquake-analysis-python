@@ -8,7 +8,7 @@ import plotly.express as px
 # EXTRACT & LOAD DATA
 
 # Fetch API Data
-# Create functions so it can easily reusable
+# Create functions so it's reusable
 def fetch_eq_api(params):
     """Fetch the earthquake data from USGS API"""
     url = "https://earthquake.usgs.gov/fdsnws/event/1/query"
